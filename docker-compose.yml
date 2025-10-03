@@ -1,0 +1,53 @@
+services:
+  app:
+    build:
+      context: ./
+      dockerfile: docker/php/Dockerfile
+    image: gp-cassa-php:8.4
+    container_name: gp-cassa-php
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html
+    env_file:
+      - .env
+    networks: [gp-net]
+    depends_on:
+      db:
+        condition: service_healthy
+
+  web:
+    image: nginx:1.26-alpine
+    container_name: gp-cassa-nginx
+    ports:
+      - "8080:80"
+    volumes:
+      - ./:/var/www/html
+      - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on: [app]
+    networks: [gp-net]
+
+  db:
+    image: mysql:8.4
+    container_name: gp-cassa-mysql
+    # ports:
+    #   - "3306:3306"   # (opzione A: lasciamo non esposto)
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-gp_cassa}
+      MYSQL_USER: ${DB_USERNAME:-gp_user}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-gp_pass}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
+    volumes:
+      - dbdata:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$${MYSQL_ROOT_PASSWORD} --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+    networks: [gp-net]
+
+volumes:
+  dbdata:
+
+networks:
+  gp-net:
+    driver: bridge
