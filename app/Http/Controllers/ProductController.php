@@ -25,11 +25,14 @@ class ProductController extends Controller {
         return new ProductResource($p->load('category'));
     }
 
-    public function update(UpdateProductRequest $req, int $id) {
+    public function update(UpdateProductRequest $req, int $id)
+    {
         $p = $this->repo->find($id);
         abort_if(!$p, 404, 'Product not found');
-        $p = $this->repo->update($p, $req->validated());
-        return new ProductResource($p);
+
+        $this->repo->update($p, $req->validated());
+
+        return new ProductResource($p->refresh());
     }
 
     public function destroy(int $id) {

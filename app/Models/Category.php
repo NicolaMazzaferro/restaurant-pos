@@ -2,11 +2,16 @@
 
 namespace App\Models;
 
+use App\Models\Product;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /** Category groups products (e.g., Pizza, Bevande) */
 class Category extends Model {
+
+    use HasFactory;
+
     protected $fillable = ['name'];
 
     public function products(): HasMany { 

@@ -16,7 +16,7 @@ class OrderResource extends JsonResource
             'type' => $this->type->value ?? $this->type,
             'total' => (float) $this->total,
             'items' => OrderItemResource::collection($this->whenLoaded('items', $this->items)),
-            'receipt' => new ReceiptResource($this->whenLoaded('receipt', $this->receipt)),
+            'receipt' => $this->when($this->receipt !== null, new ReceiptResource($this->receipt)),
             'created_at' => optional($this->created_at)->toIso8601String(),
         ];
     }

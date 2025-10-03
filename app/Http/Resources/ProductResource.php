@@ -4,17 +4,18 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class ProductResource extends JsonResource {
-    public function toArray($request): array {
+class ProductResource extends JsonResource
+{
+    /** @return array<string,mixed> */
+    public function toArray($request): array
+    {
         return [
-            'id'=>$this->id,
-            'name'=>$this->name,
-            'category'=> $this->whenLoaded('category', fn()=>[
-                'id'=>$this->category?->id,'name'=>$this->category?->name
-            ]),
-            'price'=>$this->price,
-            'stock'=>$this->stock,
-            'created_at'=>$this->created_at,
+            'id'       => $this->id,
+            'name'     => $this->name,
+            'category' => new CategoryResource($this->whenLoaded('category', $this->category)),
+            'price'    => (float) $this->price,
+            'stock'    => (int) $this->stock,
+            'created_at' => optional($this->created_at)->toIso8601String(),
         ];
     }
 }

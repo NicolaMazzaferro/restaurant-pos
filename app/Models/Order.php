@@ -2,19 +2,29 @@
 
 namespace App\Models;
 
-use App\Enums\OrderStatus;
+use App\Models\User;
+use App\Models\Receipt;
 use App\Enums\OrderType;
+use App\Models\OrderItem;
+use App\Enums\OrderStatus;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Order extends Model {
+
+    use HasFactory;
+
     protected $fillable = ['user_id','status','type','total'];
+
     protected $casts = [
-        'total'  => 'decimal:2',
         'status' => OrderStatus::class,
         'type'   => OrderType::class,
+        'total'  => 'decimal:2',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
     
     public function user(): BelongsTo {

@@ -1,7 +1,5 @@
 <?php
 
-it('returns a successful response', function () {
-    $response = $this->get('/');
-
-    $response->assertStatus(200);
+it('returns 401 on products index when unauthenticated', function () {
+    $this->getJson('/api/products')->assertStatus(401);
 });
