@@ -20,7 +20,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('orders/{order}', [OrderController::class, 'show']);
 
     // Categories
-    Route::get('/categories', [CategoryController::class, 'index']);
+    Route::apiResource('categories', CategoryController::class);
 
     // Receipt PDF
     Route::get('orders/{order}/receipt', [ReceiptController::class, 'show']);

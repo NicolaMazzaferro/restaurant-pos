@@ -12,7 +12,7 @@ class ProductFactory extends Factory
     {
         return [
             'name' => ucfirst($this->faker->unique()->words(2, true)),
-            'category_id' => Category::query()->inRandomOrder()->value('id') ?? Category::factory(),
+            'category_id' => fn () => \App\Models\Category::query()->inRandomOrder()->value('id') ?? \App\Models\Category::factory()->create()->id,
             'price' => $this->faker->randomFloat(2, 2, 20), // €2.00 - €20.00
             'stock' => $this->faker->numberBetween(0, 200),
         ];

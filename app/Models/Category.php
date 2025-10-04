@@ -8,13 +8,21 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /** Category groups products (e.g., Pizza, Bevande) */
-class Category extends Model {
-
+class Category extends Model
+{
     use HasFactory;
 
-    protected $fillable = ['name'];
+    protected $fillable = ['name','slug','is_active','sort_order'];
 
-    public function products(): HasMany { 
-        return $this->hasMany(Product::class); 
+    protected $casts = [
+        'is_active'  => 'boolean',
+        'sort_order' => 'integer',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
+
+    public function products(): HasMany
+    {
+        return $this->hasMany(Product::class);
     }
 }
