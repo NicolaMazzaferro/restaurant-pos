@@ -19,5 +19,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('orders/{order}', [OrderController::class, 'show']);
 
     // Receipt PDF
+    Route::get('orders/{order}/receipt', [ReceiptController::class, 'show']);
     Route::get('orders/{order}/receipt/pdf', [ReceiptController::class, 'pdf']);
 });
