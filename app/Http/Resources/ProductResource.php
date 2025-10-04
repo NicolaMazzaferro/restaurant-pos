@@ -16,6 +16,8 @@ class ProductResource extends JsonResource
             'price'    => (float) $this->price,
             'stock'    => (int) $this->stock,
             'created_at' => optional($this->created_at)->toIso8601String(),
+            'image_url'   => $this->image_url, // URL pubblico pronto per il frontend
+            // opzionale: 'image_path' se serve solo lato admin (meglio NON esporlo)
         ];
     }
 }

@@ -52,6 +52,12 @@ class UpdateProductRequest extends FormRequest
                 'bail', 'sometimes', 'integer', 'min:0',
                 'required_without_all:name,category_id,price',
             ],
+             'image' => [
+                'sometimes','nullable','image','mimes:jpg,jpeg,png,webp','max:2048'
+            ],
+            'remove_image'=> [
+                'sometimes','boolean'
+            ],
         ];
     }
 
