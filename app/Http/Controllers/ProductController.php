@@ -3,26 +3,36 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use Illuminate\Http\Request;
 use App\Http\Resources\ProductResource;
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
 use App\Repositories\Contracts\ProductRepositoryInterface;
 
 class ProductController extends Controller {
+
     public function __construct(private ProductRepositoryInterface $repo) {}
 
-    public function index()
+    public function index(Request $request)
     {
-        $perPageParam = request('per_page');
+        $perPageParam = $request->query('per_page');
+        $categoryId   = $request->query('category_id');
+        $search       = $request->query('search');
 
-        // Se il frontend chiede ?per_page=all o 0 → carica tutto
+        // Base query comune
+        $query = Product::with('category')->orderBy('id', 'desc');
+
+        if ($categoryId) {
+            $query->where('category_id', $categoryId);
+        }
+
+        if ($search) {
+            // ricerca parziale case-insensitive
+            $query->where('name', 'LIKE', '%' . $search . '%');
+        }
+
+        // Caso: per_page = all oppure 0 → restituisci tutto
         if ($perPageParam === 'all' || (is_numeric($perPageParam) && (int)$perPageParam === 0)) {
-            $query = Product::with('category')->orderBy('id', 'desc');
-
-            if ($categoryId = request('category_id')) {
-                $query->where('category_id', $categoryId);
-            }
-
             $items = $query->get();
 
             return response()->json([
@@ -36,10 +46,10 @@ class ProductController extends Controller {
             ]);
         }
 
-        // Altrimenti usa la paginazione classica del repository
+        // Caso standard: paginazione
         $perPage = is_numeric($perPageParam) ? (int)$perPageParam : 20;
 
-        $products = $this->repo->paginate($perPage);
+        $products = $query->paginate($perPage);
 
         return ProductResource::collection($products);
     }
