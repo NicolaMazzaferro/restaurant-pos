@@ -10,7 +10,7 @@ class EloquentCategoryRepository implements CategoryRepositoryInterface
 {
     public function paginate(array $filters = [], int $perPage = 15): LengthAwarePaginator
     {
-        $q = Category::query()->orderBy('sort_order')->orderBy('name');
+        $q = Category::query()->withCount('products')->orderBy('sort_order')->orderBy('name');
 
         if (!empty($filters['search'])) {
             $s = '%'.$filters['search'].'%';
@@ -26,6 +26,11 @@ class EloquentCategoryRepository implements CategoryRepositoryInterface
     public function findById(int $id): ?Category
     {
         return Category::find($id);
+    }
+
+    public function findByIdWithRelations(int $id): ?Category
+    {
+        return Category::withCount('products')->find($id);
     }
 
     public function create(array $data): Category

@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use Throwable;
 use RuntimeException;
 use Illuminate\Http\Request;
 use App\Services\CategoryService;
+use Illuminate\Database\QueryException;
 use App\Http\Resources\CategoryResource;
 use App\Http\Requests\StoreCategoryRequest;
 use App\Http\Requests\UpdateCategoryRequest;
@@ -57,19 +59,83 @@ class CategoryController extends Controller
     }
 
     /** DELETE /api/categories/{category} */
-    public function destroy(int $category)
+    public function destroy(int|string $id)
     {
-        $cat = $this->service->get($category);
-
         try {
-            $this->service->delete($category);
+            $this->service->delete($id);
         } catch (RuntimeException $e) {
+            // Categoria con prodotti collegati
             return response()->json([
-                'message' => 'Cannot delete category',
+                'message' => 'Impossibile eliminare la categoria',
                 'errors'  => ['category' => [$e->getMessage()]],
+            ], 422);
+        } catch (QueryException $e) {
+            // Violazione FK o errore DB
+            return response()->json([
+                'message' => 'Errore database durante l\'eliminazione della categoria.',
+                'errors'  => ['database' => [$e->getMessage()]],
+            ], 500);
+        } catch (Throwable $e) {
+            // Errore imprevisto
+            return response()->json([
+                'message' => 'Errore imprevisto durante l\'eliminazione.',
+                'errors'  => ['exception' => [$e->getMessage()]],
+            ], 500);
+        }
+
+        return response()->json(['message' => 'Categoria eliminata con successo.'], 200);
+    }
+
+    public function bulkDestroy(Request $request)
+    {
+        $ids = $request->input('ids', []);
+
+        if (empty($ids) || !is_array($ids)) {
+            return response()->json([
+                'message' => 'Invalid request. Expected array of IDs.'
             ], 422);
         }
 
-        return response()->json(['message' => 'Category deleted'], 200);
+        $deleted = 0;
+        $failed = [];
+
+        foreach ($ids as $id) {
+            $id = (int) $id; // ✅ conversione esplicita
+            if ($id <= 0) continue;
+
+            try {
+                $cat = $this->service->get($id);
+
+                if ($cat->products()->exists()) {
+                    $failed[] = [
+                        'id' => $id,
+                        'name' => $cat->name,
+                        'reason' => 'Categoria con prodotti associati'
+                    ];
+                    continue;
+                }
+
+                $this->service->delete($id);
+                $deleted++;
+            } catch (RuntimeException $e) {
+                $failed[] = [
+                    'id' => $id,
+                    'reason' => 'Categoria non trovata'
+                ];
+            } catch (\Throwable $e) {
+                $failed[] = [
+                    'id' => $id,
+                    'reason' => $e->getMessage()
+                ];
+            }
+        }
+
+        return response()->json([
+            'message' => 'Bulk delete completed.',
+            'deleted' => $deleted,
+            'failed' => $failed,
+        ]);
     }
+
+
 }

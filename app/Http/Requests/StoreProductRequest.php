@@ -19,4 +19,13 @@ class StoreProductRequest extends FormRequest {
             'image' => ['nullable','image','mimes:jpg,jpeg,png,webp','max:2048'],
         ];
     }
+
+    public function messages(): array
+    {
+        return [
+            'image.image' => "Il file caricato deve essere un'immagine.",
+            'image.mimes' => "Formato non valido: consenti JPG, JPEG, PNG o WebP.",
+            'image.max'   => "L'immagine non deve superare i 2 MB.",
+        ];
+    }
 }

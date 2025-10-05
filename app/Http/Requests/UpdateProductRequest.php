@@ -55,9 +55,6 @@ class UpdateProductRequest extends FormRequest
              'image' => [
                 'sometimes','nullable','image','mimes:jpg,jpeg,png,webp','max:2048'
             ],
-            'remove_image'=> [
-                'sometimes','boolean'
-            ],
         ];
     }
 
@@ -72,6 +69,9 @@ class UpdateProductRequest extends FormRequest
             'category_id.required_without_all' => $atLeastOne,
             'price.required_without_all'       => $atLeastOne,
             'stock.required_without_all'       => $atLeastOne,
+            'image.image'                      => "Il file caricato deve essere un'immagine.",
+            'image.mimes'                      => "Formato non valido: consenti JPG, JPEG, PNG o WebP.",
+            'image.max'                        => "L'immagine non deve superare i 2 MB.",
         ];
     }
 

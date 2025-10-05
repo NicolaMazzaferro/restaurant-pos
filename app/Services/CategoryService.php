@@ -17,9 +17,9 @@ class CategoryService
         return $this->repo->paginate($filters, $perPage);
     }
 
-    public function get(int $id): Category
+    public function get(int|string $id): Category
     {
-        $cat = $this->repo->findById($id);
+        $cat = $this->repo->findByIdWithRelations((int) $id, ['products']);
         if (!$cat) {
             throw new RuntimeException('Category not found.');
         }
@@ -47,14 +47,18 @@ class CategoryService
         });
     }
 
-    public function delete(int $id): void
+    public function delete(int|string $id): void
     {
-        DB::transaction(function () use ($id) {
-            $cat = $this->get($id);
-            if ($cat->products()->exists()) {
-                throw new RuntimeException('Cannot delete category with related products.');
-            }
+        $id = (int) $id;
+        $cat = $this->get($id);
+
+        if ($cat->products()->exists()) {
+            throw new RuntimeException("La categoria '{$cat->name}' contiene prodotti e non può essere eliminata.");
+        }
+
+        DB::transaction(function () use ($cat) {
             $this->repo->delete($cat);
         });
     }
+
 }

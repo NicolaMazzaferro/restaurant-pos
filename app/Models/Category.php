@@ -21,8 +21,15 @@ class Category extends Model
         'updated_at' => 'datetime',
     ];
 
+    protected $appends = ['products_count'];
+
     public function products(): HasMany
     {
-        return $this->hasMany(Product::class);
+        return $this->hasMany(Product::class, 'category_id', 'id');
+    }
+
+    public function getProductsCountAttribute()
+    {
+        return $this->products()->count();
     }
 }

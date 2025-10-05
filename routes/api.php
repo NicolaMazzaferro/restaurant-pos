@@ -21,6 +21,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Categories
     Route::apiResource('categories', CategoryController::class);
+    Route::post('/categories/bulk-delete', [CategoryController::class, 'bulkDestroy']);
 
     // Receipt PDF
     Route::get('orders/{order}/receipt', [ReceiptController::class, 'show']);
