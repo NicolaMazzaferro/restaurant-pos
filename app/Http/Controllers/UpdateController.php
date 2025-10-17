@@ -39,11 +39,15 @@ class UpdateController extends Controller
         }
 
         return response()->json([
-            'version'   => $latest,
-            'url'       => "{$baseUrl}/{$file}",
-            'signature' => trim(file_get_contents($sigPath)),
-            'notes'     => (string) config('update.notes'),
-            'pub_date'  => now()->toIso8601String(),
+            'version' => $latest,
+            'notes' => "Bugfix e miglioramenti",
+            'pub_date' => now()->toIso8601String(),
+            'platforms' => [
+                'windows' => [
+                    'signature' => $signature,
+                    'url' => $url,
+                ],
+            ],
         ]);
     }
 }
