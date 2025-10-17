@@ -15,26 +15,35 @@ class UpdateController extends Controller
      */
     public function check(Request $request, string $target, string $currentVersion)
     {
-        $latest = '0.7.1';
+        $latest   = config('update.latest');
+        $baseUrl  = rtrim(config('update.base_url'), '/');
+        $pattern  = data_get(config('update.platforms'), "{$target}.pattern");
 
-        if (version_compare($currentVersion, $latest, '>=')) {
-            // in v2, dynamic server: 204 quando non c'è update
-            return response('', 204);
+        if (!$pattern) {
+            return response()->json(['error' => 'Unsupported platform'], 400);
         }
 
-        // scegli il file in base alla piattaforma/architettura se vuoi
-        $file = "gestionale-a-villetta_{$latest}_x64-setup.nsis.zip"; // <-- artefatto updater (zip), non l'.exe
-        $sig  = "{$file}.sig";
+        if (version_compare($currentVersion, $latest, '>=')) {
+            return response('', 204); // nessun update
+        }
 
-        $url = asset("storage/updates/{$file}");
-        $signature = trim(file_get_contents(public_path("storage/updates/{$sig}")));
+        $file = str_replace(':version', $latest, $pattern);
+        $diskPath = "updates/{$file}";
+        $sigPath  = public_path("storage/updates/{$file}.sig");
+
+        if (!Storage::disk('public')->exists("updates/{$file}")) {
+            return response()->json(['error' => 'Update file not found'], 404);
+        }
+        if (!file_exists($sigPath)) {
+            return response()->json(['error' => 'Signature not found'], 404);
+        }
 
         return response()->json([
-            "version"   => $latest,
-            "url"       => $url,
-            "signature" => $signature,
-            "notes"     => "Bugfix & migliorie"
+            'version'   => $latest,
+            'url'       => "{$baseUrl}/{$file}",
+            'signature' => trim(file_get_contents($sigPath)),
+            'notes'     => (string) config('update.notes'),
+            'pub_date'  => now()->toIso8601String(),
         ]);
     }
-
 }
