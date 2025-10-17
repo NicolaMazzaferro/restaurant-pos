@@ -11,13 +11,13 @@ return [
     'platforms' => [
         'windows' => [
             // NSIS setup (.exe). L’updater v2 va bene anche con .exe + .sig
-            'pattern' => 'gestionale-a-villetta_:version_x64-setup.exe',
+            'pattern' => 'Gestionale - A Villetta_:version_x64-setup.exe',
         ],
         'linux' => [
-            'pattern' => 'gestionale-a-villetta_:version_amd64.AppImage',
+            'pattern' => 'Gestionale - A Villetta_:version_amd64.AppImage',
         ],
         'darwin' => [
-            'pattern' => 'gestionale-a-villetta_:version_x64.dmg',
+            'pattern' => 'Gestionale - A Villetta_:version_x64.dmg',
         ],
     ],
 
