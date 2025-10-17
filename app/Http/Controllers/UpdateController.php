@@ -23,27 +23,35 @@ class UpdateController extends Controller
             return response()->json(['error' => 'Unsupported platform'], 400);
         }
 
+        // ✅ Se già aggiornato
         if (version_compare($currentVersion, $latest, '>=')) {
-            return response('', 204); // nessun update
+            return response('', 204);
         }
 
+        // ✅ Costruisci nomi file
         $file = str_replace(':version', $latest, $pattern);
         $diskPath = "updates/{$file}";
         $sigPath  = public_path("storage/updates/{$file}.sig");
 
-        if (!Storage::disk('public')->exists("updates/{$file}")) {
+        if (!Storage::disk('public')->exists($diskPath)) {
             return response()->json(['error' => 'Update file not found'], 404);
         }
+
         if (!file_exists($sigPath)) {
             return response()->json(['error' => 'Signature not found'], 404);
         }
 
+        // ✅ Crea URL e leggi firma
+        $url = "{$baseUrl}/storage/{$diskPath}";
+        $signature = trim(file_get_contents($sigPath));
+
+        // ✅ JSON conforme a Tauri v2
         return response()->json([
             'version' => $latest,
             'notes' => "Bugfix e miglioramenti",
             'pub_date' => now()->toIso8601String(),
             'platforms' => [
-                'windows' => [
+                $target => [
                     'signature' => $signature,
                     'url' => $url,
                 ],
