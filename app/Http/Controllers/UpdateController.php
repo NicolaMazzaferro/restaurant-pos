@@ -42,7 +42,7 @@ class UpdateController extends Controller
         }
 
         // ✅ Crea URL e leggi firma
-        $url = "{$baseUrl}/storage/{$diskPath}";
+        $url = "{$baseUrl}/{$file}";
         $signature = trim(file_get_contents($sigPath));
 
         // ✅ JSON conforme a Tauri v2
