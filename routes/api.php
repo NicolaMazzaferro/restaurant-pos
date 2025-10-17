@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\UpdateController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ReceiptController;
 use App\Http\Controllers\CategoryController;
@@ -26,4 +27,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Receipt PDF
     Route::get('orders/{order}/receipt', [ReceiptController::class, 'show']);
     Route::get('orders/{order}/receipt/pdf', [ReceiptController::class, 'pdf']);
+
+    // Update App
+    Route::get('/updates/{target}/{current_version}', [UpdateController::class, 'check']);
 });
