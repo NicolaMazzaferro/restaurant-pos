@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 /**
  * Class Printer
@@ -12,9 +11,19 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
  */
 class Printer extends Model
 {
-    use HasFactory, HasUuids;
+    use HasFactory;
 
+    /**
+     * Disattiva auto-increment e imposta tipo stringa.
+     */
+    public $incrementing = false;
+    protected $keyType = 'string';
+
+    /**
+     * Campi assegnabili in massa.
+     */
     protected $fillable = [
+        'id',
         'name',
         'model',
         'header',
