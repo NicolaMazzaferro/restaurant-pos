@@ -37,4 +37,15 @@ class PrinterService
             }
         }
     }
+
+    public function find(string $id)
+    {
+        return $this->repo->find($id);
+    }
+
+    public function delete($printer): void
+    {
+        $this->repo->delete($printer);
+    }
+
 }

@@ -35,5 +35,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('printers')->group(function () {
         Route::get('/', [PrinterController::class, 'index']);
         Route::post('/', [PrinterController::class, 'store']);
+        Route::delete('/{printer}', [PrinterController::class, 'destroy']);
     });
 });

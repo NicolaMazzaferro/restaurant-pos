@@ -24,4 +24,18 @@ class PrinterController extends Controller
         $this->service->saveAll($request->validated()['printers']);
         return response()->json(['message' => 'Printers saved successfully.']);
     }
+
+    public function destroy(string $id): JsonResponse
+    {
+        $printer = $this->service->find($id);
+
+        if (!$printer) {
+            return response()->json(['message' => 'Printer not found'], 404);
+        }
+
+        $this->service->delete($printer);
+
+        return response()->json(['message' => 'Printer deleted successfully.']);
+    }
+
 }
