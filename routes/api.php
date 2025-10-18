@@ -8,6 +8,7 @@ use App\Http\Controllers\UpdateController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ReceiptController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\PrinterController;
 
 Route::post('/auth/login', [AuthController::class, 'login']);
 
@@ -30,4 +31,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Update App
     Route::get('/updates/{target}/{current_version}', [UpdateController::class, 'check']);
+
+    Route::prefix('printers')->group(function () {
+        Route::get('/', [PrinterController::class, 'index']);
+        Route::post('/', [PrinterController::class, 'store']);
+    });
 });
