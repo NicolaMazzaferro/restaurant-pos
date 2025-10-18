@@ -2,9 +2,7 @@
 
 namespace App\Services;
 
-use App\Models\Printer;
 use App\Repositories\PrinterRepository;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class PrinterService
@@ -14,7 +12,7 @@ class PrinterService
     ) {}
 
     /**
-     * Restituisce tutte le stampanti dal database.
+     * Restituisce tutte le stampanti.
      */
     public function getAll()
     {
@@ -22,39 +20,21 @@ class PrinterService
     }
 
     /**
-     * Salva (sovrascrivendo) tutte le configurazioni stampanti.
+     * Salva o aggiorna tutte le stampanti una per una.
      *
-     * Usa una transazione atomica per garantire consistenza:
-     * - Truncate elimina tutte le righe esistenti
-     * - Ogni stampante viene reinserita ex-novo
+     * Nessuna transazione globale: ogni record è indipendente.
      */
     public function saveAll(array $printers): void
     {
-        DB::transaction(function () use ($printers) {
-            Log::info('Salvataggio configurazioni stampanti', [
-                'count' => count($printers)
-            ]);
-
-            // 1️⃣ Pulisce la tabella (operazione atomica)
-            Printer::truncate();
-
-            // 2️⃣ Inserisce nuove configurazioni
-            foreach ($printers as $printer) {
-                // Forza coerenza dati (Laravel ignora campi extra)
-                $this->repo->create([
-                    'id' => $printer['id'] ?? uuid_create(UUID_TYPE_RANDOM),
-                    'name' => $printer['name'] ?? 'Unknown printer',
-                    'model' => $printer['model'] ?? null,
-                    'header' => $printer['header'] ?? '',
-                    'address' => $printer['address'] ?? '',
-                    'city' => $printer['city'] ?? '',
-                    'phone' => $printer['phone'] ?? '',
-                    'vat' => $printer['vat'] ?? '',
-                    'printer_port' => $printer['printer_port'] ?? '',
+        foreach ($printers as $printer) {
+            try {
+                $this->repo->updateOrCreate(['id' => $printer['id']], $printer);
+            } catch (\Throwable $e) {
+                Log::error('Errore salvataggio stampante', [
+                    'printer' => $printer['name'] ?? 'unknown',
+                    'error' => $e->getMessage(),
                 ]);
             }
-
-            Log::info('Configurazioni stampanti salvate con successo.');
-        });
+        }
     }
 }

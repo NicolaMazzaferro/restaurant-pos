@@ -7,25 +7,19 @@ use Illuminate\Database\Eloquent\Collection;
 
 class PrinterRepository
 {
-    public function all(): Collection
+    public function all()
     {
         return Printer::all();
+    }
+
+    public function updateOrCreate(array $where, array $data)
+    {
+        return Printer::updateOrCreate($where, $data);
     }
 
     public function find(string $id): ?Printer
     {
         return Printer::find($id);
-    }
-
-    public function create(array $data): Printer
-    {
-        return Printer::create($data);
-    }
-
-    public function update(Printer $printer, array $data): Printer
-    {
-        $printer->update($data);
-        return $printer;
     }
 
     public function delete(Printer $printer): void
